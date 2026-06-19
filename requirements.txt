@@ -1,0 +1,2 @@
+# Runtime has no third-party dependencies; the fixture exercises the pipeline,
+# not a dependency tree. Lint and test tooling is installed in the test buildspec.

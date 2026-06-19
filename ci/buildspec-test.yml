@@ -1,0 +1,26 @@
+# Flow B test stage buildspec (requirement 8.2). The pipeline test project runs
+# this file (pipeline var test_buildspec_path defaults to ci/buildspec-test.yml).
+# It runs lint, unit and integration tests and fails the pipeline on any error,
+# so a broken change (AC-5) stops Flow B before the build stage and fires the SNS
+# failure notification (AC-5, requirement 11.5).
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - echo "Installing test and lint tooling"
+      - pip install --quiet ruff
+  pre_build:
+    commands:
+      # Tests import the package from src/.
+      - export PYTHONPATH="$CODEBUILD_SRC_DIR/src"
+  build:
+    commands:
+      - echo "Lint"
+      - ruff check src tests
+      - echo "Unit and integration tests"
+      # Any failing test exits non-zero and fails the stage (requirement 8.2).
+      - python -m unittest discover -s tests -v
